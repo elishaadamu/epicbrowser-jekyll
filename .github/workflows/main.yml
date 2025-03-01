@@ -1,8 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation. The..
-
 name: Deploy Jekyll site to Pages
 
 on:
@@ -25,43 +20,44 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
             - name: Setup Ruby
-              uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+              uses: ruby/setup-ruby@v1
               with:
-                  ruby-version: "3.1" # Not needed with a .ruby-version file
-                  bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-                  cache-version: 0 # Increment this number if you need to re-download cached gems
-            - name: Install dependencies 
-              run:  bundle install
+                  ruby-version: "3.1"
+                  bundler-cache: true
+                  cache-version: 0
+
+            - name: Install dependencies
+              run: bundle install
+
             - name: Setup Pages
               id: pages
               uses: actions/configure-pages@v3
+
             - name: Build with Jekyll
               run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
-            - name: Copy CNAME file
-              run: cp CNAME _site/
               env:
                   JEKYLL_ENV: production
+
+            - name: Copy CNAME file
+              run: cp CNAME _site/
+
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
                 name: github-pages
                 path: _site
                 retention-days: 1
-            - name: Upload artifact
-              uses: awalsh128/cache-apt-pkgs-action@v1.4.3
-              with:
-                  path: _site
-
 
     # Deployment job
     deploy:
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         needs: build
         steps:
             - name: Deploy to GitHub Pages
               id: deployment
-              uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+              uses: actions/deploy-pages@v2
